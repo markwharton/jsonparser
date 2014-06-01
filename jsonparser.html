@@ -1,0 +1,706 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<style type="text/css">
+.underline { text-decoration: underline; }
+/*body { font-family: helvetica, sans-serif; font-size: 12pt; color: #000; }*/
+/*table, td, th { border: 1px solid green; padding: 1px; }*/
+/*th { background-color: green; color: white; }*/
+body
+{
+font-size:14px;
+color:#000000;
+background-color:#ffffff;
+/*margin:0px;*/
+overflow:auto;
+/*background-image:url('/images/gradientfromtop.gif');*/
+/*background-repeat:repeat-x;*/
+}
+
+body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input
+{
+font-family:verdana,helvetica,arial,sans-serif;
+}
+
+h1 {font-size:200%;margin-top:0px;font-weight:normal}
+h2 {font-size:160%;margin-top:10px;margin-bottom:10px;font-weight:normal}
+h3 {font-size:120%;font-weight:normal}
+h4 {font-size:100%;}
+h5 {font-size:90%;}
+h6 {font-size:80%;}
+
+h1,h2,h3,h4,h5,h6
+{
+background-color:transparent;
+color:#000000;
+}
+
+iframe {margin:0px;}
+div {width:100%;}
+
+table,th,td,input,textarea
+{
+font-size:100%;
+}
+</style>
+
+<style type="text/css">
+div#document table
+{
+font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
+/*width:100%;*/
+border-collapse:collapse;
+}
+div#document table td, div#document table th 
+{
+font-size:1.1em;
+/*border:1px solid #98bf21;*/
+border:1px solid #444;
+padding:3px 7px 2px 7px;
+}
+div#document table th 
+{
+font-size:1.2em;
+text-align:left;
+padding-top:5px;
+padding-bottom:4px;
+/*background-color:#A7C942;*/
+background-color:#aaa;
+color:#fff;
+}
+div#document table tr.alt td 
+{
+color:#000;
+/*background-color:#EAF2D3;*/
+background-color:#eee;
+}
+</style>
+</head>
+<body>
+
+<!-- title -->
+<h1>JSON Parser</h1>
+<p>
+JSON Parser Version 0.0.2<br />
+Mark Wharton, 28th October 2010<br />
+</p>
+<!-- table of content -->
+<table>
+<tbody>
+<tr><td><a href="#1">1. Introduction</a></td><td><!--<i>TOPIC</i>--></td></tr>
+	<tr><td><a href="#2">2. JSON Parser API</a></td><td><!--<i>SPEC</i>--></td></tr>
+			<tr><td><a href="#2.1">2.1 createJSONParser</a></td><td><!--<i>JSONParser JSONPARSERAPI createJSONParser(JSONParserConfig *config)</i>--></td></tr>
+			<tr><td><a href="#2.2">2.2 createJSONParserBuffer</a></td><td><!--<i>JSONParserBuffer JSONPARSERAPI *createJSONParserBuffer(size_t size)</i>--></td></tr>
+			<tr><td><a href="#2.3">2.3 createJSONParserString</a></td><td><!--<i>char JSONPARSERAPI *createJSONParserString(const char *data, size_t size)</i>--></td></tr>
+			<tr><td><a href="#2.4">2.4 jsonParserBufferFree</a></td><td><!--<i>void JSONPARSERAPI jsonParserBufferFree(JSONParserBuffer *buffer)</i>--></td></tr>
+			<tr><td><a href="#2.5">2.5 jsonParserConfigureBuilders</a></td><td><!--<i>void JSONPARSERAPI jsonParserConfigureBuilders(JSONParser parser, BuildAddElementFunc buildAddElement, BuildNewItemFunc buildNewItem, BuildSetMemberFunc buildSetMember)</i>--></td></tr>
+			<tr><td><a href="#2.6">2.6 jsonParserConfigureWriters</a></td><td><!--<i>void JSONPARSERAPI jsonParserConfigureWriters(JSONParser parser, WriteArrayElementFunc writeArrayElement, WriteObjectMemberFunc writeObjectMember, WriteStartFunc writeStart, WriteStartArrayFunc writeStartArray, WriteStartObjectFunc writeStartObject, WriteStopFunc writeStop, WriteStopArrayFunc writeStopArray, WriteStopObjectFunc writeStopObject)</i>--></td></tr>
+			<tr><td><a href="#2.7">2.7 jsonParserFree</a></td><td><!--<i>void JSONPARSERAPI jsonParserFree(JSONParser parser)</i>--></td></tr>
+			<tr><td><a href="#2.8">2.8 jsonParserGetCurrentLine</a></td><td><!--<i>int JSONPARSERAPI jsonParserGetCurrentLine(JSONParser parser)</i>--></td></tr>
+			<tr><td><a href="#2.9">2.9 jsonParserGetErrorCode</a></td><td><!--<i>enum JSON_PARSER_ERROR JSONPARSERAPI jsonParserGetErrorCode(JSONParser parser)</i>--></td></tr>
+			<tr><td><a href="#2.10">2.10 jsonParserGetErrorString</a></td><td><!--<i>const char JSONPARSERAPI *jsonParserGetErrorString(JSONParser parser)</i>--></td></tr>
+			<tr><td><a href="#2.11">2.11 jsonParserGetUserData</a></td><td><!--<i>void JSONPARSERAPI *jsonParserGetUserData(JSONParser parser)</i>--></td></tr>
+			<tr><td><a href="#2.12">2.12 jsonParserParseStream</a></td><td><!--<i>bool JSONPARSERAPI jsonParserParseStream(JSONParser parser, JSONParserBuffer *buffer, ReaderFunc reader, void *item, char *name)</i>--></td></tr>
+			<tr><td><a href="#2.13">2.13 jsonParserParseString</a></td><td><!--<i>bool JSONPARSERAPI jsonParserParseString(JSONParser parser, char *string, void *item, char *name)</i>--></td></tr>
+			<tr><td><a href="#2.14">2.14 jsonParserSetUserData</a></td><td><!--<i>void JSONPARSERAPI *jsonParserSetUserData(JSONParser parser, void *userData)</i>--></td></tr>
+			<tr><td><a href="#2.15">2.15 jsonParserStandardInputReader</a></td><td><!--<i>bool jsonParserStandardInputReader(void *userData, JSONParserBuffer *buffer, size_t *size)</i>--></td></tr>
+			<tr><td><a href="#2.16">2.16 jsonParserStringAppend</a></td><td><!--<i>char JSONPARSERAPI *jsonParserStringAppend(char *string, const char *data, size_t size)</i>--></td></tr>
+			<tr><td><a href="#2.17">2.17 jsonParserStringFree</a></td><td><!--<i>void JSONPARSERAPI jsonParserStringFree(char *string)</i>--></td></tr>
+	<tr><td><a href="#3">3. Release Notes</a></td><td><!--<i>TOPIC</i>--></td></tr>
+	</tbody>
+</table>
+<!-- body of text -->
+<div id="document">
+	<!--hr /-->
+	<h2 id="1"><span id="Introduction">1. Introduction</span></h2>
+	
+		
+			
+				<p><strong>Features</strong></p><p>
+Parse <a href="http://www.json.org/">JSON</a> and optionally build the parse tree with callbacks:</p><p>
+<strong>Dependencies</strong></p><ul><li><a href="http://www.complang.org/ragel/">ragel</a> for building jsonparser library</li><li><a href="http://fallabs.com/tokyocabinet/">tokyocabinet</a> for json test application</li></ul><p>
+<strong>Installation</strong></p><p>
+Run the configuration script.</p><pre>  ./configure</pre><p>
+Build the library and programs.</p><pre>  make</pre><p>
+Install the library and programs.</p><pre>  sudo make install</pre><p>
+<strong>Using the JSON Library</strong></p><pre>  gcc -I/usr/local/include jsonapp.c -o jsonapp -L/usr/local/lib -ljsonparser</pre><p>
+<strong>Sample JSON Application</strong></p><pre>#include &lt;jsonparser.h&gt;
+
+char *jsonTypes[] = { NULL, &quot;string&quot;, &quot;number&quot;, &quot;{}&quot;, &quot;[]&quot;, &quot;true&quot;, &quot;false&quot;, &quot;null&quot; };
+
+bool jsonAddElement(void *userData, void *item, JSONParserValue *value)
+{
+  char *elementValue = value-&gt;string; /* string and number */
+  elementValue = elementValue ? elementValue : jsonTypes[value-&gt;type];
+  return fprintf(stdout, &quot;element: %s\n&quot;, elementValue) &gt; 0;
+}
+
+bool jsonSetMember(void *userData, void *item, char *name, JSONParserValue *value)
+{
+  char *memberValue = value-&gt;string; /* string and number */
+  memberValue = memberValue ? memberValue : jsonTypes[value-&gt;type];
+  return fprintf(stdout, &quot;member: %s = %s\n&quot;, name, memberValue) &gt; 0;
+}
+
+int main(int argc, char **argv)
+{
+  JSONParser parser = createJSONParser(NULL);
+  if (parser) {
+    jsonParserConfigureBuilders(parser, jsonAddElement, NULL, jsonSetMember);
+    JSONParserBuffer *buffer = createJSONParserBuffer(JSON_PARSER_BUFFER_SIZE);
+    if (buffer) {
+      if (!jsonParserParseStream(parser, buffer, NULL, NULL, NULL)) {
+        fprintf(stderr, &quot;Error: parser error: %d %s (line %d)\n&quot;, 
+          jsonParserGetErrorCode(parser), jsonParserGetErrorString(parser), 
+          jsonParserGetCurrentLine(parser));
+        return 1;
+      }
+      jsonParserBufferFree(buffer);
+      buffer = NULL;
+    } else {
+      fprintf(stderr, &quot;Error: could not allocate buffer: %lld\n&quot;, (long long)buffer-&gt;size);
+      return 1;
+    }
+    jsonParserFree(parser);
+    parser = NULL;
+  } else {
+    fprintf(stderr, &quot;Error: could not create parser\n&quot;);
+    return 1;
+  }
+  return 0;
+}</pre><p>
+<strong>Values</strong></p><p>
+The following value types are defined:</p><table><tr><th> Value Types                            </th><th> Field               </th></tr><tr><td> <code>JSON_PARSER_VALUE_TYPE_NONE</code>         </td><td>                      </td></tr><tr class="alt"><td> <code>JSON_PARSER_VALUE_TYPE_STRING [1]</code>   </td><td> <code>string</code>           </td></tr><tr><td> <code>JSON_PARSER_VALUE_TYPE_NUMBER [1,2]</code> </td><td> <code>number | string</code> </td></tr><tr class="alt"><td> <code>JSON_PARSER_VALUE_TYPE_OBJECT</code>       </td><td> <code>item</code>             </td></tr><tr><td> <code>JSON_PARSER_VALUE_TYPE_ARRAY</code>        </td><td> <code>item</code>             </td></tr><tr class="alt"><td> <code>JSON_PARSER_VALUE_TYPE_TRUE</code>         </td><td>                      </td></tr><tr><td> <code>JSON_PARSER_VALUE_TYPE_FALSE</code>        </td><td>                      </td></tr><tr class="alt"><td> <code>JSON_PARSER_VALUE_TYPE_NULL</code>         </td><td>                      </td></tr></table><p>
+<strong>Special Notes:</strong></p><ol><li>The string must be copied, value string destroyed on callback return.</li><li>The number type provides the value as <code>double</code> and <code>string</code> for convenience.
+</li></ol>
+			
+		
+		
+		
+		
+	
+	
+	<!--hr /-->
+	<h2 id="2"><span id="JSON Parser API">2. JSON Parser API</span></h2>
+	
+	
+
+<p>The <strong>JSON Parser API</strong> library provides the following functions:</p>
+<ul>
+<li><code>createJSONParser</code></li>
+<li><code>createJSONParserBuffer</code></li>
+<li><code>createJSONParserString</code></li>
+<li><code>jsonParserBufferFree</code></li>
+<li><code>jsonParserConfigureBuilders</code></li>
+<li><code>jsonParserConfigureWriters</code></li>
+<li><code>jsonParserFree</code></li>
+<li><code>jsonParserGetCurrentLine</code></li>
+<li><code>jsonParserGetErrorCode</code></li>
+<li><code>jsonParserGetErrorString</code></li>
+<li><code>jsonParserGetUserData</code></li>
+<li><code>jsonParserParseStream</code></li>
+<li><code>jsonParserParseString</code></li>
+<li><code>jsonParserSetUserData</code></li>
+<li><code>jsonParserStandardInputReader</code></li>
+<li><code>jsonParserStringAppend</code></li>
+<li><code>jsonParserStringFree</code></li>
+</ul>
+<hr />
+			<h3 id="2.1"><span id="createJSONParser">createJSONParser</span></h3>
+		<p><code>JSONParser JSONPARSERAPI createJSONParser(JSONParserConfig *config)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Create a new <code>parser</code> object. The parser must be freed with <code><a href="#jsonParserFree">jsonParserFree</a></code> when no longer needed.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>config</strong> : JSONParserConfig *</code><br />
+			(optional) The config object. If the value is NULL the standard <code>emptyJSONParserConfig</code> config is used. 
+With <code>emptyJSONParserConfig</code> all options are set to <code>false</code> and the callbacks set to <code>NULL</code>.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>parser</strong> : JSONParser</code><br />
+			
+			The new parser object. Note: The value will be <code>NULL</code> if memory could not be allocated.
+</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.2"><span id="createJSONParserBuffer">createJSONParserBuffer</span></h3>
+		<p><code>JSONParserBuffer JSONPARSERAPI *createJSONParserBuffer(size_t size)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Create a new <code>buffer</code> object. The buffer must be freed with <code><a href="#jsonParserBufferFree">jsonParserBufferFree</a></code> when no longer needed.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>size</strong> : size_t</code><br />
+			The buffer size.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>buffer</strong> : JSONParserBuffer *</code><br />
+			
+			The new buffer object. Note: The value will be <code>NULL</code> if memory could not be allocated.
+</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.3"><span id="createJSONParserString">createJSONParserString</span></h3>
+		<p><code>char JSONPARSERAPI *createJSONParserString(const char *data, size_t size)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Create a new <code>string</code> object with text. The string must be freed with <code><a href="#jsonParserStringFree">jsonParserStringFree</a></code> when no longer needed.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>data</strong> : const char *</code><br />
+			The text buffer data.
+</li>
+		<li><code><strong>size</strong> : size_t</code><br />
+			The text buffer size.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>string</strong> : char *</code><br />
+			
+			The new string object. Note: The value will be <code>NULL</code> if memory could not be allocated.
+</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.4"><span id="jsonParserBufferFree">jsonParserBufferFree</span></h3>
+		<p><code>void JSONPARSERAPI jsonParserBufferFree(JSONParserBuffer *buffer)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Free the memory allocated to <code>buffer</code>. The buffer must be a valid buffer created with an earlier 
+call to <a href="#createJSONParserBuffer">createJSONParserBuffer</a>. The buffer value must not be used after it is freed. It 
+is good practice to set the buffer value to <code>NULL</code> after calling this function.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>buffer</strong> : JSONParserBuffer *</code><br />
+			The buffer to be freed.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>none</strong> : void</code><br />
+			
+			</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.5"><span id="jsonParserConfigureBuilders">jsonParserConfigureBuilders</span></h3>
+		<p><code>void JSONPARSERAPI jsonParserConfigureBuilders(JSONParser parser, BuildAddElementFunc buildAddElement, BuildNewItemFunc buildNewItem, BuildSetMemberFunc buildSetMember)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Configure the builder callbacks for the parser. These callbacks are applied to a copy of the original config 
+object (if any) which was passed in the call to <a href="#createJSONParser">createJSONParser</a>. The original config object remains unchanged.</p><p>
+The builder callback functions are declared as follows:</p><pre>typedef bool (*BuildAddElementFunc)(void *userData, void *item, JSONParserValue *value);
+typedef bool (*BuildNewItemFunc)(void *userData, JSONParserValue *value/*, int depth*/);
+typedef bool (*BuildSetMemberFunc)(void *userData, void *item, char *name, JSONParserValue *value);</pre><p>
+Return <code>true</code> on success and <code>false</code> on failure. Record any specific error details in <code>userData</code> if they are needed.</p><p>
+Note: Parser stack overflow (<code>JSON_PARSER_ERROR_PSTACK</code>) is a product of the builder functions. If support for builder functions is removed then the stack issues will also go away.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>parser</strong> : JSONParser</code><br />
+			The parser object.
+</li>
+		<li><code><strong>buildAddElement</strong> : BuildAddElementFunc</code><br />
+			Builder callback to add an element to the array item.
+</li>
+		<li><code><strong>buildNewItem</strong> : BuildNewItemFunc</code><br />
+			Builder callback to make a new array or object item.
+</li>
+		<li><code><strong>buildSetMember</strong> : BuildSetMemberFunc</code><br />
+			Builder callback to set a member of the object item.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>none</strong> : void</code><br />
+			
+			</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.6"><span id="jsonParserConfigureWriters">jsonParserConfigureWriters</span></h3>
+		<p><code>void JSONPARSERAPI jsonParserConfigureWriters(JSONParser parser, WriteArrayElementFunc writeArrayElement, WriteObjectMemberFunc writeObjectMember, WriteStartFunc writeStart, WriteStartArrayFunc writeStartArray, WriteStartObjectFunc writeStartObject, WriteStopFunc writeStop, WriteStopArrayFunc writeStopArray, WriteStopObjectFunc writeStopObject)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Configure the writer callbacks for the parser. These callbacks are applied to a copy of the original config 
+object (if any) which was passed in the call to <a href="#createJSONParser">createJSONParser</a>. The original config object remains unchanged.</p><p>
+The writer callback functions are declared as follows:</p><pre>typedef bool (*WriteArrayElementFunc)(void *userData, JSONParserValue *value);
+typedef bool (*WriteObjectMemberFunc)(void *userData, char *name, JSONParserValue *value);
+typedef bool (*WriteStartFunc)(void *userData);
+typedef bool (*WriteStartArrayFunc)(void *userData, char *name);
+typedef bool (*WriteStartObjectFunc)(void *userData, char *name);
+typedef bool (*WriteStopFunc)(void *userData);
+typedef bool (*WriteStopArrayFunc)(void *userData);
+typedef bool (*WriteStopObjectFunc)(void *userData);</pre><p>
+Return <code>true</code> on success and <code>false</code> on failure. Record any specific error details in <code>userData</code> if they are needed.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>parser</strong> : JSONParser</code><br />
+			The parser object.
+</li>
+		<li><code><strong>writeArrayElement</strong> : WriteArrayElementFunc</code><br />
+			Writer callback to add an element to the array context. Primitive values only, array and object values are handled separately.
+</li>
+		<li><code><strong>writeObjectMember</strong> : WriteObjectMemberFunc</code><br />
+			Writer callback to set a member of the object context. Primitive values only, array and object values are handled separately.
+</li>
+		<li><code><strong>writeStart</strong> : WriteStartFunc</code><br />
+			Writer callback to initialize the document context.
+</li>
+		<li><code><strong>writeStartArray</strong> : WriteStartArrayFunc</code><br />
+			Writer callback to push a new array context. If the <code>name</code> parameter is <code>NULL</code> the parent context is an array, otherwise it is an object.
+</li>
+		<li><code><strong>writeStartObject</strong> : WriteStartObjectFunc</code><br />
+			Writer callback to push a new object context. If the <code>name</code> parameter is <code>NULL</code> the parent context is an array, otherwise it is an object.
+</li>
+		<li><code><strong>writeStop</strong> : WriteStopFunc</code><br />
+			Writer callback to terminate the document context.
+</li>
+		<li><code><strong>writeStopArray</strong> : WriteStopArrayFunc</code><br />
+			Writer callback to pop the array and restore the parent context.
+</li>
+		<li><code><strong>writeStopObject</strong> : WriteStopObjectFunc</code><br />
+			Writer callback to pop the object and restore the parent context.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>none</strong> : void</code><br />
+			
+			</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.7"><span id="jsonParserFree">jsonParserFree</span></h3>
+		<p><code>void JSONPARSERAPI jsonParserFree(JSONParser parser)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Free the memory allocated to <code>parser</code>. The parser must be a valid parser created with an earlier 
+call to <a href="#createJSONParser">createJSONParser</a>. The parser value must not be used after it is freed. It 
+is good practice to set the parser value to <code>NULL</code> after calling this function.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>parser</strong> : JSONParser</code><br />
+			The parser to be freed.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>none</strong> : void</code><br />
+			
+			</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.8"><span id="jsonParserGetCurrentLine">jsonParserGetCurrentLine</span></h3>
+		<p><code>int JSONPARSERAPI jsonParserGetCurrentLine(JSONParser parser)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Return the current line of the parser. Line numbers start from <code>1</code> and continue to the end of the document. 
+Before the parser has started the value will be <code>0</code>, on completion the value will be the total number of 
+lines in the document. When an error occurs the value will be the line the error occurred on.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>parser</strong> : JSONParser</code><br />
+			The parser object.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>value</strong> : int</code><br />
+			
+			The current line.
+</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.9"><span id="jsonParserGetErrorCode">jsonParserGetErrorCode</span></h3>
+		<p><code>enum JSON_PARSER_ERROR JSONPARSERAPI jsonParserGetErrorCode(JSONParser parser)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Return the error code of the parser. The error code is set when an error occurs during parsing.
+Errors which occur during reading or writing are caught in the parser and returned as 
+<code>JSON_PARSER_ERROR_READER</code> and <code>JSON_PARSER_ERROR_WRITER</code> respectively. Readers and writers
+should record any specific error details in <code>userData</code> if they are needed. The <code>JSON_PARSER_ERROR_PARSER</code>
+error indicates a syntax error, <code>JSON_PARSER_ERROR_MEMORY</code> indicates an out of memory error, 
+<code>JSON_PARSER_ERROR_BUFFER</code> indicates a token in the stream was too big for the user supplied buffer.</p><table><tr><th> Errors                       </th><th> Description                       </th></tr><tr><td> <code>JSON_PARSER_ERROR_UNKNOWN</code> </td><td> An unknown error occurred.         </td></tr><tr class="alt"><td> <code>JSON_PARSER_ERROR_NONE</code>    </td><td> No error.                          </td></tr><tr><td> <code>JSON_PARSER_ERROR_BUFFER</code>  </td><td> Token too big for buffer.          </td></tr><tr class="alt"><td> <code>JSON_PARSER_ERROR_MEMORY</code>  </td><td> An out of memory error occurred.   </td></tr><tr><td> <code>JSON_PARSER_ERROR_PARSER</code>  </td><td> Input could not be parsed.         </td></tr><tr class="alt"><td> <code>JSON_PARSER_ERROR_PSTACK</code>  </td><td> Parser stack overflow.             </td></tr><tr><td> <code>JSON_PARSER_ERROR_READER</code>  </td><td> An error occurred with the reader. </td></tr><tr class="alt"><td> <code>JSON_PARSER_ERROR_WRITER</code>  </td><td> An error occurred with the writer. </td></tr></table><p>
+The <code>JSON_PARSER_ERROR_NONE</code> error is equal to <code>0</code>, <code>JSON_PARSER_ERROR_UNKNOWN</code> is less than <code>0</code>, 
+all other errors are greater than <code>0</code>.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>parser</strong> : JSONParser</code><br />
+			The parser object.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>value</strong> : enum JSON_PARSER_ERROR</code><br />
+			
+			The error code.
+</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.10"><span id="jsonParserGetErrorString">jsonParserGetErrorString</span></h3>
+		<p><code>const char JSONPARSERAPI *jsonParserGetErrorString(JSONParser parser)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Return the error string associated with the error code of the parser. See <code><a href="#jsonParserGetErrorCode">jsonParserGetErrorCode</a> for details.
+</code></p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>parser</strong> : JSONParser</code><br />
+			The parser object.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>value</strong> : const char *</code><br />
+			
+			The error string.
+</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.11"><span id="jsonParserGetUserData">jsonParserGetUserData</span></h3>
+		<p><code>void JSONPARSERAPI *jsonParserGetUserData(JSONParser parser)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Return user data associated with the parser in an earlier call to <code><a href="#jsonParserSetUserData">jsonParserSetUserData</a></code>. 
+The <code>void *userData</code> should be recast to use. Callback functions are provided the same <code>void *userData</code>. 
+Macros can make using the user data easier, for example:</p><pre>#define userDataRowCount (((JSON2HTMLUserDataPtr)userData)-&gt;rowCount)</pre><p>
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>parser</strong> : JSONParser</code><br />
+			The parser object.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>value</strong> : void *</code><br />
+			
+			The user data.
+</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.12"><span id="jsonParserParseStream">jsonParserParseStream</span></h3>
+		<p><code>bool JSONPARSERAPI jsonParserParseStream(JSONParser parser, JSONParserBuffer *buffer, ReaderFunc reader, void *item, char *name)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Parse the reader input. Callbacks are used to build the JSON array/elements and object/members parse tree.</p><p>
+The <code>ReaderFunc</code> reader callback is declared as follows:</p><pre>typedef bool (*ReaderFunc)(void *userData, JSONParserBuffer *buffer, size_t *size);
+
+bool jsonParserStandardInputReader(void *userData, JSONParserBuffer *buffer, size_t *size) {
+    *size = fread((char *)buffer-&gt;data, 1, buffer-&gt;size, stdin);
+    return ferror(stdin) == 0;
+}</pre><p>
+Return <code>true</code> on success and <code>false</code> on failure. Record any specific error details in <code>userData</code> if they are needed.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>parser</strong> : JSONParser</code><br />
+			The parser object.
+</li>
+		<li><code><strong>buffer</strong> : JSONParserBufferPtr</code><br />
+			The buffer for the parser. Buffer management functions are performed automatically.
+</li>
+		<li><code><strong>reader</strong> : ReaderFunc</code><br />
+			(optional) The parser calls this functions whenever it needs to fill the buffer. If the value 
+is NULL the default <code><a href="#jsonParserStandardInputReader">jsonParserStandardInputReader</a></code> callback function is used.
+</li>
+		<li><code><strong>item</strong> : void *</code><br />
+			The root object for the parse value (i.e. the top most result of the parse).
+</li>
+		<li><code><strong>name</strong> : char *</code><br />
+			(optional) The member name in the root object. If the value is NULL the default name &quot;<code>root</code>&quot; is used.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>success</strong> : bool</code><br />
+			
+			Returns <code>true</code> on success and <code>false</code> on failure. Call the <code><a href="#jsonParserGetErrorCode">jsonParserGetErrorCode</a></code> 
+and <code><a href="#jsonParserGetErrorString">jsonParserGetErrorString</a></code> functions for information about the failure.
+Possible errors include: <code>JSON_PARSER_ERROR_BUFFER</code>, <code>JSON_PARSER_ERROR_MEMORY</code>, 
+<code>JSON_PARSER_ERROR_PARSER</code>, <code>JSON_PARSER_ERROR_PSTACK</code>, and <code>JSON_PARSER_ERROR_READER</code>.
+</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.13"><span id="jsonParserParseString">jsonParserParseString</span></h3>
+		<p><code>bool JSONPARSERAPI jsonParserParseString(JSONParser parser, char *string, void *item, char *name)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Parse the string. Callbacks are used to build the JSON array/elements and object/members parse tree.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>parser</strong> : JSONParser</code><br />
+			The parser object.
+</li>
+		<li><code><strong>string</strong> : char *</code><br />
+			The string to parse.
+</li>
+		<li><code><strong>item</strong> : void *</code><br />
+			The root object for the parse value (i.e. the top most result of the parse).
+</li>
+		<li><code><strong>name</strong> : char *</code><br />
+			(optional) The member name in the root object. If the value is NULL the default name &quot;<code>root</code>&quot; is used.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>success</strong> : bool</code><br />
+			
+			Returns <code>true</code> on success and <code>false</code> on failure. Call the <code><a href="#jsonParserGetErrorCode">jsonParserGetErrorCode</a></code> and 
+<code><a href="#jsonParserGetErrorString">jsonParserGetErrorString</a></code> functions for information about the failure.
+Possible errors include: <code>JSON_PARSER_ERROR_MEMORY</code>, 
+<code>JSON_PARSER_ERROR_PARSER</code>, and <code>JSON_PARSER_ERROR_PSTACK</code>.
+</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.14"><span id="jsonParserSetUserData">jsonParserSetUserData</span></h3>
+		<p><code>void JSONPARSERAPI *jsonParserSetUserData(JSONParser parser, void *userData)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Associate user data with the parser for callback functions. See also <code><a href="#jsonParserGetUserData">jsonParserGetUserData</a></code>.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>parser</strong> : JSONParser</code><br />
+			The parser object.
+</li>
+		<li><code><strong>userData</strong> : void *</code><br />
+			The user data.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>none</strong> : void</code><br />
+			
+			</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.15"><span id="jsonParserStandardInputReader">jsonParserStandardInputReader</span></h3>
+		<p><code>bool jsonParserStandardInputReader(void *userData, JSONParserBuffer *buffer, size_t *size)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>The default reader callback for filling the buffer with <code>stdin</code>. See also <code><a href="#jsonParserParseStream">jsonParserParseStream</a></code>.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>userData</strong> : void *</code><br />
+			The user data associated with the parser.
+</li>
+		<li><code><strong>buffer</strong> : JSONParserBuffer *</code><br />
+			The buffer to read into.
+</li>
+		<li><code><strong>size</strong> : size_t *</code><br />
+			Pointer for returning the amount of bytes read into the buffer.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>success</strong> : bool</code><br />
+			
+			Returns <code>true</code> on success and <code>false</code> on failure. No specific error details are recorded for <code>JSON_PARSER_ERROR_READER</code>.
+</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.16"><span id="jsonParserStringAppend">jsonParserStringAppend</span></h3>
+		<p><code>char JSONPARSERAPI *jsonParserStringAppend(char *string, const char *data, size_t size)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Append text to <code>string</code>. The string must be a valid string created with an earlier call to <a href="#createJSONParserString">createJSONParserString</a>.
+The string must be freed with <code><a href="#jsonParserStringFree">jsonParserStringFree</a></code> when no longer needed.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>string</strong> : char *</code><br />
+			(optional) The string object. If the value is NULL a new string will be created.
+</li>
+		<li><code><strong>data</strong> : const char *</code><br />
+			The text buffer data.
+</li>
+		<li><code><strong>size</strong> : size_t</code><br />
+			The text buffer size.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>string</strong> : char *</code><br />
+			
+			The (possibly) new string object. Note: The value will be <code>NULL</code> if memory could not be allocated.
+</li>
+				
+		</ul>
+		<hr />
+				<h3 id="2.17"><span id="jsonParserStringFree">jsonParserStringFree</span></h3>
+		<p><code>void JSONPARSERAPI jsonParserStringFree(char *string)</<code></p>
+		<p><strong>Description</strong></p>
+		<p>Free the memory allocated to <code>string</code>. The string must be a valid string created with an earlier 
+call to <a href="#createJSONParserString">createJSONParserString</a>. The string value must not be used after it is freed. It 
+is good practice to set the string value to <code>NULL</code> after calling this function.
+</p>
+		<p><strong>Parameters</strong></p>
+		<ul>
+		<li><code><strong>string</strong> : char *</code><br />
+			The string to be freed.
+</li>
+				</ul>
+		<p><strong>Return Value</strong></p>
+		<ul>
+		
+		<li><code><strong>none</strong> : void</code><br />
+			
+			</li>
+				
+		</ul>
+		<hr />
+			
+	<!--hr /-->
+	<h2 id="3"><span id="Release Notes">3. Release Notes</span></h2>
+	
+		
+			
+				<p><!--include:release-notes-->
+</p>
+			
+		
+		
+		
+		
+							<strong>28 October 2010 - 0.0.2</strong>
+				<ul><li>Added support for builders and writers.
+</li></ul>
+							<strong>27 October 2010 - 0.0.1</strong>
+				<ul><li>Initial release for discussion.
+</li></ul>
+					
+	
+	
+
+</div>
+</body>
+</html>

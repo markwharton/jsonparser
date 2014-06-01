@@ -1,0 +1,13 @@
+...
+   [% root %]
+   [% root.glossary.true %]
+   [% root.glossary.false %]
+   [% root.glossary.null %]
+   [% root.glossary.title %]
+   [% root.glossary.GlossDiv.title %]
+   [% root.glossary.GlossDiv.GlossList.GlossEntry.GlossTerm %]
+   [% root.glossary.GlossDiv.GlossList.GlossEntry.GlossDef.para %]
+[% FOREACH root.glossary.GlossDiv.GlossList.GlossEntry.GlossDef.GlossSeeAlso item \%]
+      GlossSeeAlso: [% item %]
+[% END \%]
+...
